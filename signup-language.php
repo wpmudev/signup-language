@@ -1,15 +1,16 @@
 <?php
 /*
 Plugin Name: signup_language
-Plugin URI: 
-Description:
+Plugin URI: http://premium.wpmudev.org/project/select-language-at-signup
+Description: Allows new users to select the language they use at signup
 Author: Andrew Billits
-Version: 1.0.1
+Version: 1.0.2
 Author URI:
 WDP ID: 60
+Text Domain: signup_language
 */
 
-/* 
+/*
 Copyright 2007-2009 Incsub (http://incsub.com)
 
 This program is free software; you can redistribute it and/or modify
@@ -26,7 +27,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$signup_language_current_version = '1.0.1';
+$signup_language_current_version = '1.0.2';
+
+load_muplugin_textdomain( 'signup_language', 'languages' );
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -50,7 +53,7 @@ function signup_language_make_current() {
 	if (get_site_option( "signup_language_version" ) == '') {
 		add_site_option( 'signup_language_version', '0.0.0' );
 	}
-	
+
 	if (get_site_option( "signup_language_version" ) == $signup_language_current_version) {
 		// do nothing
 	} else {
@@ -63,7 +66,7 @@ function signup_language_make_current() {
 	if (get_option( "signup_language_version" ) == '') {
 		add_option( 'signup_language_version', '0.0.0' );
 	}
-	
+
 	if (get_option( "signup_language_version" ) == $signup_language_current_version) {
 		// do nothing
 	} else {
@@ -84,11 +87,11 @@ function signup_language_global_install() {
 	if (get_site_option( "signup_language_installed" ) == '') {
 		add_site_option( 'signup_language_installed', 'no' );
 	}
-	
+
 	if (get_site_option( "signup_language_installed" ) == "yes") {
 		// do nothing
 	} else {
-	
+
 		$signup_language_table1 = "CREATE TABLE `" . $wpdb->base_prefix . "signup_language` (
   `language_ID` bigint(20) unsigned NOT NULL auto_increment,
   `language_blog_domain` varchar(255) NOT NULL,
@@ -131,10 +134,10 @@ function signup_language_language_import() {
 
 function signup_language_signup_form_process($content) {
 	global $wpdb;
-	
+
 	$content_original = $content;
 	extract($content);
-	
+
 	if ( $errors->get_error_code() ) {
 		//error
 	} else {
@@ -152,13 +155,13 @@ function signup_language_signup_form() {
 	include_once(ABSPATH . 'wp-admin/includes/ms.php');
 	$lang_files = glob( ABSPATH . LANGDIR . '/*.mo' );
 	$lang = get_option('WPLANG');
-	
+
 	if( is_array( $lang_files ) && count($lang_files) >= 1 ) {
 		?>
-		<label for="blog_type"><?php _e('Language') ?>:</label>
+		<label for="blog_type"><?php _e('Language', 'signup_language') ?>:</label>
 		<select name="language" id="language" style="width: 100%; text-align: left; font-size: 20px;">
 		<?php
-        echo '<option value=""'.((empty($lang)) ? 'selected="selected"': '').'>'.__('English').'</option>';
+        echo '<option value=""'.((empty($lang)) ? 'selected="selected"': '').'>'.__('English', 'signup_language').'</option>';
         foreach ( (array) $lang_files as $key => $val ) {
             $code_lang = basename( $val, '.mo' );
             echo '<option value="'.$code_lang.'"'.(($lang == $code_lang) ? ' selected="selected"' : '').'> '.format_code_lang($code_lang).'</option>';
