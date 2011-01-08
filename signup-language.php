@@ -1,12 +1,13 @@
 <?php
 /*
-Plugin Name: signup_language
+Plugin Name: Select Language At Signup
 Plugin URI: http://premium.wpmudev.org/project/select-language-at-signup
 Description: Allows new users to select the language they use at signup
-Author: Andrew Billits
-Version: 1.0.2
-Author URI:
+Author: S H Mohanjith (Incsub), Andrew Billits (Incsub)
+Version: 1.0.3
+Author URI: http://premium.wpmudev.org
 WDP ID: 60
+Network: true
 Text Domain: signup_language
 */
 
@@ -27,9 +28,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$signup_language_current_version = '1.0.2';
+$signup_language_current_version = '1.0.3';
 
-load_muplugin_textdomain( 'signup_language', 'languages' );
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -42,9 +42,18 @@ if ($_GET['key'] == '' || $_GET['key'] === ''){
 	add_action('admin_head', 'signup_language_make_current');
 	signup_language_language_import();
 }
+
+add_action('init', 'signup_language_init');
 add_action('signup_blogform', 'signup_language_signup_form');
-//add_action('signup_finished', 'signup_language_signup_form_process');
 add_filter('wpmu_validate_blog_signup', 'signup_language_signup_form_process');
+
+function signup_language_init() {
+	if ( !is_multisite() )
+		exit( 'The Select Language At Signup plugin is only compatible with WordPress Multisite.' );
+		
+	load_plugin_textdomain('signup_language', false, dirname(plugin_basename(__FILE__)).'/languages');
+}
+
 //------------------------------------------------------------------------//
 //---Functions------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -78,8 +87,6 @@ function signup_language_make_current() {
 
 function signup_language_blog_install() {
 	global $wpdb, $signup_language_current_version;
-	//$signup_language_table1 = "";
-	//$wpdb->query( $signup_language_table1 );
 }
 
 function signup_language_global_install() {
@@ -105,10 +112,7 @@ function signup_language_global_install() {
 		$signup_language_table5 = "";
 
 		$wpdb->query( $signup_language_table1 );
-		//$wpdb->query( $signup_language_table2 );
-		//$wpdb->query( $signup_language_table3 );
-		//$wpdb->query( $signup_language_table4 );
-		//$wpdb->query( $signup_language_table5 );
+		
 		update_site_option( "signup_language_installed", "yes" );
 	}
 }
@@ -171,13 +175,3 @@ function signup_language_signup_form() {
         <?php
 	} // languages
 }
-
-//------------------------------------------------------------------------//
-//---Page Output Functions------------------------------------------------//
-//------------------------------------------------------------------------//
-
-//------------------------------------------------------------------------//
-//---Support Functions----------------------------------------------------//
-//------------------------------------------------------------------------//
-
-?>
