@@ -4,7 +4,7 @@ Plugin Name: Select Language At Signup
 Plugin URI: http://premium.wpmudev.org/project/select-language-at-signup
 Description: Allows new users to select the language they use at signup
 Author: S H Mohanjith (Incsub), Andrew Billits (Incsub)
-Version: 1.0.3
+Version: 1.0.4
 Author URI: http://premium.wpmudev.org
 WDP ID: 60
 Network: true
@@ -28,7 +28,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$signup_language_current_version = '1.0.3';
+$signup_language_current_version = '1.0.4';
 
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
@@ -165,10 +165,13 @@ function signup_language_signup_form() {
 		<label for="blog_type"><?php _e('Language', 'signup_language') ?>:</label>
 		<select name="language" id="language" style="width: 100%; text-align: left; font-size: 20px;">
 		<?php
-        echo '<option value=""'.((empty($lang)) ? 'selected="selected"': '').'>'.__('English', 'signup_language').'</option>';
+        echo '<option value=""'.((empty($lang)) ? 'selected="selected"': '').'>'.__('English', 'signup_language').' (en)</option>';
         foreach ( (array) $lang_files as $key => $val ) {
-            $code_lang = basename( $val, '.mo' );
-            echo '<option value="'.$code_lang.'"'.(($lang == $code_lang) ? ' selected="selected"' : '').'> '.format_code_lang($code_lang).'</option>';
+		$code_lang = basename( $val, '.mo' );
+		if (preg_match('/^([a-z]{2}|[a-z]{2}_[A-Z]{2})$/', $code_lang) == 0) {
+			continue;
+		}
+		echo '<option value="'.$code_lang.'"'.(($lang == $code_lang) ? ' selected="selected"' : '').'> '.format_code_lang($code_lang).' ('.$code_lang.')</option>';
         }
         ?>
         </select>
