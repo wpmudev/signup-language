@@ -4,7 +4,7 @@ Plugin Name: Select Language At Signup
 Plugin URI: http://premium.wpmudev.org/project/select-language-at-signup
 Description: Allows new users to select the language they use at signup
 Author: S H Mohanjith (Incsub), Andrew Billits (Incsub)
-Version: 1.0.4
+Version: 1.0.5
 Author URI: http://premium.wpmudev.org
 WDP ID: 60
 Network: true
@@ -28,156 +28,123 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$signup_language_current_version = '1.0.4';
+$signup_language_current_version = '1.0.5';
+static $signup_language;
 
-//------------------------------------------------------------------------//
-//---Config---------------------------------------------------------------//
-//------------------------------------------------------------------------//
+add_action( 'init', 'signup_language_setup' );
+add_action( 'admin_notices', 'signup_language_admin_notice' );
+add_action( 'signup_blogform', 'signup_language_signup_form' );
+add_filter( 'wpmu_validate_blog_signup', 'signup_language_validate_language' );
+add_filter( 'add_signup_meta', 'signup_language_add_signup_meta' );
+add_action( 'wpmu_new_blog', 'signup_language_add_language_option', 10, 6 );
 
-//------------------------------------------------------------------------//
-//---Hook-----------------------------------------------------------------//
-//------------------------------------------------------------------------//
-//check for activating
-if ($_GET['key'] == '' || $_GET['key'] === ''){
-	add_action('admin_head', 'signup_language_make_current');
-	signup_language_language_import();
-}
-
-add_action('init', 'signup_language_init');
-add_action('signup_blogform', 'signup_language_signup_form');
-add_filter('wpmu_validate_blog_signup', 'signup_language_signup_form_process');
-
-function signup_language_init() {
-	if ( !is_multisite() )
-		exit( 'The Select Language At Signup plugin is only compatible with WordPress Multisite.' );
-		
+/**
+ * Loads the plugin text domain
+ * 
+ * @since 1.0
+ */
+function signup_language_setup() {		
+	//wp_die(var_dump(WPLANG));
 	load_plugin_textdomain('signup_language', false, dirname(plugin_basename(__FILE__)).'/languages');
 }
 
-//------------------------------------------------------------------------//
-//---Functions------------------------------------------------------------//
-//------------------------------------------------------------------------//
-function signup_language_make_current() {
-	global $wpdb, $signup_language_current_version;
-	if (get_site_option( "signup_language_version" ) == '') {
-		add_site_option( 'signup_language_version', '0.0.0' );
-	}
+/**
+ * Show an error admin notice if the site is not multisite
+ * 
+ * @since 1.0.5
+ */
+function signup_language_admin_notice() {
 
-	if (get_site_option( "signup_language_version" ) == $signup_language_current_version) {
-		// do nothing
-	} else {
-		//update to current version
-		update_site_option( "signup_language_installed", "no" );
-		update_site_option( "signup_language_version", $signup_language_current_version );
-	}
-	signup_language_global_install();
-	//--------------------------------------------------//
-	if (get_option( "signup_language_version" ) == '') {
-		add_option( 'signup_language_version', '0.0.0' );
-	}
-
-	if (get_option( "signup_language_version" ) == $signup_language_current_version) {
-		// do nothing
-	} else {
-		//update to current version
-		update_option( "signup_language_version", $signup_language_current_version );
-		signup_language_blog_install();
-	}
-}
-
-function signup_language_blog_install() {
-	global $wpdb, $signup_language_current_version;
-}
-
-function signup_language_global_install() {
-	global $wpdb, $signup_language_current_version;
-	if (get_site_option( "signup_language_installed" ) == '') {
-		add_site_option( 'signup_language_installed', 'no' );
-	}
-
-	if (get_site_option( "signup_language_installed" ) == "yes") {
-		// do nothing
-	} else {
-
-		$signup_language_table1 = "CREATE TABLE `" . $wpdb->base_prefix . "signup_language` (
-  `language_ID` bigint(20) unsigned NOT NULL auto_increment,
-  `language_blog_domain` varchar(255) NOT NULL,
-  `language_blog_path` varchar(255) NOT NULL,
-  `language_value` varchar(255) NOT NULL default '0',
-  PRIMARY KEY  (`language_ID`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=18 ;";
-		$signup_language_table2 = "";
-		$signup_language_table3 = "";
-		$signup_language_table4 = "";
-		$signup_language_table5 = "";
-
-		$wpdb->query( $signup_language_table1 );
-		
-		update_site_option( "signup_language_installed", "yes" );
-	}
-}
-
-function signup_language_language_import() {
-	global $nationality_list, $wpdb, $wp_roles, $current_user;
-	if (get_settings("signup_language_imported") == '1') {
-		// it's alreadt installed
-	} else {
-		$bloginfo = get_blog_details( $wpdb->blogid, false );
-		$tmp_language_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $wpdb->base_prefix . "signup_language WHERE language_blog_domain = '" . $bloginfo->domain . "' AND language_blog_path = '" . $bloginfo->path . "'");
-		if ($tmp_language_count >= '1') {
-			//info was provided at signup!
-			$tmp_lang = $wpdb->get_var("SELECT language_value FROM " . $wpdb->base_prefix . "signup_language WHERE language_blog_domain = '" . $bloginfo->domain . "' AND language_blog_path = '" . $bloginfo->path . "'");
-			update_option('WPLANG', $tmp_lang);
-			//fix global nationality table
-		} else {
-			//no info provided at signup, do nothing
-		}
-		add_option('signup_language_imported', '1');
-	}
-}
-
-function signup_language_signup_form_process($content) {
-	global $wpdb;
-
-	$content_original = $content;
-	extract($content);
-
-	if ( $errors->get_error_code() ) {
-		//error
-	} else {
-		//no error
-		$wpdb->query( "INSERT INTO " . $wpdb->base_prefix . "signup_language (language_blog_domain, language_blog_path, language_value) VALUES ( '" . $domain . "', '" . $path . "', '" . $_POST['language'] . "' )" );
-	}
-
-	return $content_original;
-}
-//------------------------------------------------------------------------//
-//---Output Functions-----------------------------------------------------//
-//------------------------------------------------------------------------//
-
-function signup_language_signup_form() {
-	include_once(ABSPATH . 'wp-admin/includes/ms.php');
-	$lang_files = glob( ABSPATH . LANGDIR . '/*.mo' );
-	$lang = get_option('WPLANG');
-
-	if( is_array( $lang_files ) && count($lang_files) >= 1 ) {
+	if ( ! is_multisite() ) {
 		?>
-		<label for="blog_type"><?php _e('Language', 'signup_language') ?>:</label>
-		<select name="language" id="language" style="width: 100%; text-align: left; font-size: 20px;">
+			<div class="error">
+				<p><?php _e( 'The <strong>Select Language At Signup</strong> plugin is only compatible with WordPress Multisite.', 'signup_language' ); ?></p>
+			</div>
 		<?php
-        echo '<option value=""'.((empty($lang)) ? 'selected="selected"': '').'>'.__('English', 'signup_language').' (en)</option>';
-        foreach ( (array) $lang_files as $key => $val ) {
-		$code_lang = basename( $val, '.mo' );
-		if (preg_match('/^([a-z]{2}|[a-z]{2}_[A-Z]{2})$/', $code_lang) == 0) {
-			continue;
-		}
-		echo '<option value="'.$code_lang.'"'.(($lang == $code_lang) ? ' selected="selected"' : '').'> '.format_code_lang($code_lang).' ('.$code_lang.')</option>';
-        }
-        ?>
-        </select>
-        <?php
-	} // languages
+	}
 }
+
+/**
+ * Renders the selection box on signup form
+ * 
+ * @since 1.0
+ */
+function signup_language_signup_form( $errors ) {
+	include_once( ABSPATH . 'wp-admin/includes/ms.php' );
+
+	$languages = get_available_languages();
+
+	?>
+	<div id="language-selection">
+		<p class="language-option">
+			<label for="language"><?php _e( 'Select a language', 'signup_language' ); ?></label>
+			<?php if ( $errmsg = $errors->get_error_message( 'language' ) ): ?>
+				<p class="error"><?php echo $errmsg ?></p>
+			<?php endif; ?>
+			<select name="language" id="language">
+				<?php mu_dropdown_languages( $languages, get_site_option( 'WPLANG' ) ); ?>
+			</select>
+		</p>
+	</div>
+		
+	<?php
+
+}
+
+/**
+ * Validates the language from the signup form
+ * 
+ * @param Array $meta Site meta from the form
+ * @return Array New meta array
+ */
+function signup_language_validate_language( $meta ) {
+
+	global $signup_language; 
+
+	$languages = array_merge( get_available_languages(), array( '' ) );
+	if ( ! isset( $_POST['language'] ) || ! in_array( $_POST['language'], $languages ) ) {
+		$meta['errors']->add( 'language', __( 'Language not allowed', 'signup_language' ) );
+	}
+	else {
+		$meta['WPLANG'] = $_POST['language'];
+		$signup_language = $meta['WPLANG'];
+	}
+
+	return $meta;
+
+}
+
+/**
+ * Adds the language to the blog signup meta table
+ * 
+ * @param Array $meta Current meta
+ * @return Array New meta
+ */
+function signup_language_add_signup_meta( $meta ) {
+	global $signup_language;
+
+	$meta['WPLANG'] = $signup_language;
+
+	return $meta;
+}
+
+/**
+ * Updates the language for the site based on the meta we saved before
+ * 
+ * @param Integer $blog_id 
+ * @param Integer $user_id 
+ * @param String $domain 
+ * @param String $path 
+ * @param Integer $site_id 
+ * @param Array $meta 
+ */
+function signup_language_add_language_option( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
+	switch_to_blog( $blog_id );
+	update_option( 'WPLANG', $meta['WPLANG'] );
+	restore_current_blog();
+}
+
+
 
 if ( !function_exists( 'wdp_un_check' ) ) {
 	add_action( 'admin_notices', 'wdp_un_check', 5 );

@@ -1,9 +1,18 @@
 Plugin Name: Signup Language
-Author: S H Mohanjith (Incsub), Andrew Billits (Incsub)
+Author: S H Mohanjith (Incsub), Andrew Billits (Incsub), Ignacio (Incsub)
 
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
+
+1.0.5 - 2013/04/30
+----------------------------------------------------------------------
+- Blog languages are not set without any table.
+- Plugin recoded.
+- Fixed notices when getting key.
+- Fixed SQL Injection issue
+- Changed styles on signup form
+- Added more error control on signup form.
 
 1.0.4 - 06/19/2011
 ----------------------------------------------------------------------
