@@ -4,7 +4,7 @@ Plugin Name: Select Language At Signup
 Plugin URI: http://premium.wpmudev.org/project/select-language-at-signup
 Description: Allows new users to select the language they use at signup
 Author: S H Mohanjith (Incsub), Andrew Billits (Incsub)
-Version: 1.0.5
+Version: 1.0.6
 Author URI: http://premium.wpmudev.org
 WDP ID: 60
 Network: true
@@ -28,7 +28,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$signup_language_current_version = '1.0.5';
+$signup_language_current_version = '1.0.6';
 static $signup_language;
 
 add_action( 'init', 'signup_language_setup' );
@@ -40,17 +40,17 @@ add_action( 'wpmu_new_blog', 'signup_language_add_language_option', 10, 6 );
 
 /**
  * Loads the plugin text domain
- * 
+ *
  * @since 1.0
  */
-function signup_language_setup() {		
+function signup_language_setup() {
 	//wp_die(var_dump(WPLANG));
 	load_plugin_textdomain('signup_language', false, dirname(plugin_basename(__FILE__)).'/languages');
 }
 
 /**
  * Show an error admin notice if the site is not multisite
- * 
+ *
  * @since 1.0.5
  */
 function signup_language_admin_notice() {
@@ -66,7 +66,7 @@ function signup_language_admin_notice() {
 
 /**
  * Renders the selection box on signup form
- * 
+ *
  * @since 1.0
  */
 function signup_language_signup_form( $errors ) {
@@ -86,20 +86,20 @@ function signup_language_signup_form( $errors ) {
 			</select>
 		</p>
 	</div>
-		
+
 	<?php
 
 }
 
 /**
  * Validates the language from the signup form
- * 
+ *
  * @param Array $meta Site meta from the form
  * @return Array New meta array
  */
 function signup_language_validate_language( $meta ) {
 
-	global $signup_language; 
+	global $signup_language;
 
 	$languages = array_merge( get_available_languages(), array( '' ) );
 	if ( ! isset( $_POST['language'] ) || ! in_array( $_POST['language'], $languages ) ) {
@@ -116,7 +116,7 @@ function signup_language_validate_language( $meta ) {
 
 /**
  * Adds the language to the blog signup meta table
- * 
+ *
  * @param Array $meta Current meta
  * @return Array New meta
  */
@@ -130,28 +130,16 @@ function signup_language_add_signup_meta( $meta ) {
 
 /**
  * Updates the language for the site based on the meta we saved before
- * 
- * @param Integer $blog_id 
- * @param Integer $user_id 
- * @param String $domain 
- * @param String $path 
- * @param Integer $site_id 
- * @param Array $meta 
+ *
+ * @param Integer $blog_id
+ * @param Integer $user_id
+ * @param String $domain
+ * @param String $path
+ * @param Integer $site_id
+ * @param Array $meta
  */
 function signup_language_add_language_option( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 	switch_to_blog( $blog_id );
 	update_option( 'WPLANG', $meta['WPLANG'] );
 	restore_current_blog();
-}
-
-
-
-if ( !function_exists( 'wdp_un_check' ) ) {
-	add_action( 'admin_notices', 'wdp_un_check', 5 );
-	add_action( 'network_admin_notices', 'wdp_un_check', 5 );
-
-	function wdp_un_check() {
-		if ( !class_exists( 'WPMUDEV_Update_Notifications' ) && current_user_can( 'edit_users' ) )
-			echo '<div class="error fade"><p>' . __('Please install the latest version of <a href="http://premium.wpmudev.org/project/update-notifications/" title="Download Now &raquo;">our free Update Notifications plugin</a> which helps you stay up-to-date with the most stable, secure versions of WPMU DEV themes and plugins. <a href="http://premium.wpmudev.org/wpmu-dev/update-notifications-plugin-information/">More information &raquo;</a>', 'wpmudev') . '</a></p></div>';
-	}
 }
