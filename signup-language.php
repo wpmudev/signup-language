@@ -4,7 +4,7 @@ Plugin Name: Select Language At Signup
 Plugin URI: http://premium.wpmudev.org/project/select-language-at-signup
 Description: Allows new users to select the language they use at signup
 Author: S H Mohanjith (Incsub), Andrew Billits (Incsub)
-Version: 1.0.6
+Version: 1.0.5.1
 Author URI: http://premium.wpmudev.org
 WDP ID: 60
 Network: true
@@ -28,7 +28,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$signup_language_current_version = '1.0.6';
+$signup_language_current_version = '1.0.5.1';
 static $signup_language;
 
 add_action( 'init', 'signup_language_setup' );
