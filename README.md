@@ -2,7 +2,15 @@
 
 **INACTIVE NOTICE: This plugin is unsupported by WPMUDEV, we've published it here for those technical types who might want to fork and maintain it for their needs.**
 
-## Select Language at Signup gives users the ability to set the site language when creating a new site on your WordPress Multisite network.
+
+## Translations
+
+Translation files can be found at https://github.com/wpmudev/translations
+
+## Usage
+
+Select Language at Signup gives users the ability to set the site language when creating a new site on your WordPress Multisite network.
+
 
 ### The Ultimate Language Selector
 
